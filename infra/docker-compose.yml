@@ -1,0 +1,55 @@
+# Entorno de desarrollo reproducible: PostgreSQL + Redis + API.
+# Uso:
+#   docker compose -f infra/docker-compose.yml up -d db redis
+#   (desde backend/) npx prisma migrate dev && npm run seed && npm run start:dev
+#
+# Para levantar también la API en contenedor: docker compose up --build
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: caribbean_fest
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/caribbean_fest?schema=public
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev-secret-cambia-en-produccion
+      JWT_REFRESH_SECRET: dev-refresh-secret-cambia
+      PORT: "3000"
+      CORS_ORIGINS: http://localhost:8080
+    ports:
+      - "3000:3000"
+    profiles: ["full"]  # se activa con: docker compose --profile full up
+
+volumes:
+  db_data:

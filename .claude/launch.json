@@ -1,0 +1,26 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend (NestJS API)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:dev"],
+      "cwd": "backend",
+      "port": 3000
+    },
+    {
+      "name": "mobile (Flutter Web)",
+      "runtimeExecutable": "C:\\Users\\LENOVO\\flutter\\bin\\flutter.bat",
+      "runtimeArgs": ["run", "-d", "web-server", "--web-hostname", "127.0.0.1", "--web-port", "8080", "--dart-define=API_BASE_URL=http://localhost:3000"],
+      "cwd": "mobile",
+      "port": 8080
+    },
+    {
+      "name": "mobile (web build estática)",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["serve_build.js"],
+      "cwd": "mobile",
+      "port": 8080
+    }
+  ]
+}

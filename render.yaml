@@ -1,0 +1,34 @@
+# Blueprint de Render para el backend (plan gratuito).
+# Render detecta este archivo al crear un "Blueprint" desde el repo de GitHub.
+#
+# Base de datos: usa Neon (https://neon.tech) gratis y persistente; pega su
+# connection string en DATABASE_URL. (También sirve la BD gratis de Render.)
+services:
+  - type: web
+    name: caribbean-fest-api
+    runtime: node
+    rootDir: backend
+    plan: free
+    region: oregon
+    buildCommand: npm ci && npx prisma generate && npm run build
+    # Aplica el esquema a la BD y arranca. db push es idempotente.
+    startCommand: npx prisma db push --skip-generate --accept-data-loss && node dist/main.js
+    healthCheckPath: /api/tournaments
+    envVars:
+      - key: DATABASE_URL
+        sync: false # ← pega aquí la cadena de Neon (Postgres) en el panel de Render
+      - key: CORS_ORIGINS
+        sync: false # ← la URL pública del frontend, p. ej. https://caribbean-fest.netlify.app
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_TTL
+        value: 900s
+      - key: JWT_REFRESH_TTL
+        value: 7d
+      - key: NODE_VERSION
+        value: "20"
+      # Opcional: push FCM. Pega el JSON de la cuenta de servicio en una sola línea.
+      # - key: FIREBASE_SERVICE_ACCOUNT
+      #   sync: false

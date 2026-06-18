@@ -1,0 +1,423 @@
+// Caribbean Fest — Modelo de datos (ERD ejecutable)
+// PostgreSQL + Prisma. Esta es la fuente de verdad del esquema.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────── Enums
+
+enum Role {
+  ADMIN
+  REFEREE
+  CLUB
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum CompetitionFormat {
+  ROUND_ROBIN
+  GROUPS_PLAYOFF
+  SINGLE_ELIM
+  DOUBLE_ELIM
+  QUADRANGULAR
+  HEXAGONAL
+  CUSTOM
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  FINISHED
+  SUSPENDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PlayerPosition {
+  SETTER          // colocador/a
+  OUTSIDE_HITTER  // punta/receptor
+  OPPOSITE        // opuesto
+  MIDDLE_BLOCKER  // central
+  LIBERO
+}
+
+// ─────────────────────────────────────── Usuarios y acceso
+
+model User {
+  id           String           @id @default(uuid())
+  email        String           @unique
+  passwordHash String
+  fullName     String
+  role         Role
+  phone        String?
+  isActive     Boolean          @default(true)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  refereeProfile RefereeProfile?
+  clubMemberships ClubMembership[]
+  auditLogs      AuditLog[]
+}
+
+model RefereeProfile {
+  id           String                @id @default(uuid())
+  userId       String                @unique
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  license      String?
+  level        String?
+  assignments  RefereeAssignment[]
+}
+
+// ─────────────────────────────────────── Torneo y configuración
+
+model Tournament {
+  id            String            @id @default(uuid())
+  name          String
+  logoUrl       String?
+  rulebookUrl   String?           // PDF reglamento en S3
+  startDate     DateTime
+  endDate       DateTime
+  isPublished   Boolean           @default(false)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  categories    Category[]
+  venues        Venue[]
+  matches       Match[]
+  registrations TournamentRegistration[]
+  announcements Announcement[]
+  payments      Payment[]
+}
+
+model Category {
+  id          String            @id @default(uuid())
+  tournamentId String
+  tournament  Tournament        @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  name        String            // "Sub 14", "Universitario", "Libre"...
+  gender      Gender
+  format      CompetitionFormat @default(ROUND_ROBIN)
+  bestOf      Int               @default(5) // 3 = mejor de 3 (2 sets), 5 = mejor de 5 (3 sets)
+
+  groups      Group[]
+  teams       Team[]
+  matches     Match[]
+  bracket     Bracket?
+
+  @@unique([tournamentId, name, gender])
+}
+
+model Group {
+  id         String     @id @default(uuid())
+  categoryId String
+  category   Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name       String     // "Grupo A", "Cuadrangular 1"...
+  standings  Standing[]
+  teams      Team[]
+
+  @@unique([categoryId, name])
+}
+
+// ─────────────────────────────────────── Clubes, equipos, personas
+
+model Club {
+  id        String           @id @default(uuid())
+  name      String
+  city      String?
+  country   String?
+  crestUrl  String?          // escudo
+  email     String?
+  phone     String?
+  createdAt DateTime         @default(now())
+
+  teams       Team[]
+  memberships ClubMembership[]
+  payments    Payment[]
+}
+
+model ClubMembership {
+  id     String @id @default(uuid())
+  clubId String
+  userId String
+  club   Club   @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   String @default("delegate") // delegate | coach | admin
+
+  @@unique([clubId, userId])
+}
+
+model Team {
+  id         String   @id @default(uuid())
+  name       String
+  clubId     String
+  club       Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  groupId    String?
+  group      Group?   @relation(fields: [groupId], references: [id])
+  coachName  String?
+  delegateName String?
+
+  players       Player[]
+  staff         StaffMember[]
+  standing      Standing?
+  registrations TournamentRegistration[]
+  homeMatches   Match[]  @relation("HomeTeam")
+  awayMatches   Match[]  @relation("AwayTeam")
+  events        MatchEvent[]
+}
+
+model Player {
+  id           String          @id @default(uuid())
+  teamId       String
+  team         Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  photoUrl     String?
+  fullName     String
+  document     String?         // documento de identidad
+  birthDate    DateTime?
+  position     PlayerPosition?
+  jerseyNumber Int?
+  heightCm     Int?
+  weightKg     Int?
+
+  events       MatchEvent[]
+
+  @@unique([teamId, jerseyNumber])
+}
+
+model StaffMember {
+  id     String @id @default(uuid())
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  fullName String
+  role     String // coach | assistant | doctor | delegate
+}
+
+// ─────────────────────────────────────── Escenarios deportivos
+
+model Venue {
+  id           String     @id @default(uuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  name         String
+  address      String?
+  courts       Court[]
+}
+
+model Court {
+  id       String  @id @default(uuid())
+  venueId  String
+  venue    Venue   @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  name     String  // "Cancha 1"
+  matches  Match[]
+}
+
+// ─────────────────────────────────────── Partidos y scoring
+
+model TournamentRegistration {
+  id           String     @id @default(uuid())
+  tournamentId String
+  teamId       String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  team         Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([tournamentId, teamId])
+}
+
+model Match {
+  id           String      @id @default(uuid())
+  tournamentId String
+  tournament   Tournament  @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  categoryId   String
+  category     Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  homeTeamId   String?
+  awayTeamId   String?
+  homeTeam     Team?       @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam     Team?       @relation("AwayTeam", fields: [awayTeamId], references: [id])
+
+  courtId      String?
+  court        Court?      @relation(fields: [courtId], references: [id])
+  scheduledAt  DateTime?
+  status       MatchStatus @default(SCHEDULED)
+
+  // Marcador agregado (sets ganados), desnormalizado para lectura rápida
+  homeSetsWon  Int         @default(0)
+  awaySetsWon  Int         @default(0)
+  notes        String?     // observaciones del árbitro
+
+  sets         MatchSet[]
+  assignments  RefereeAssignment[]
+  events       MatchEvent[]
+  bracketNode  BracketNode?
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model MatchSet {
+  id          String  @id @default(uuid())
+  matchId     String
+  match       Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  setNumber   Int     // 1..5
+  homePoints  Int     @default(0)
+  awayPoints  Int     @default(0)
+  isFinished  Boolean @default(false)
+
+  @@unique([matchId, setNumber])
+}
+
+model RefereeAssignment {
+  id        String         @id @default(uuid())
+  matchId   String
+  refereeId String
+  match     Match          @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  referee   RefereeProfile @relation(fields: [refereeId], references: [id], onDelete: Cascade)
+  role      String         @default("first") // first | second | scorer | line
+
+  @@unique([matchId, refereeId])
+}
+
+// Evento puntual para estadísticas por jugador (MVP, anotador, bloqueo, saque, ataque)
+model MatchEvent {
+  id        String   @id @default(uuid())
+  matchId   String
+  match     Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  playerId  String?
+  player    Player?  @relation(fields: [playerId], references: [id])
+  type      String   // POINT | ATTACK | BLOCK | SERVE_ACE | ERROR
+  setNumber Int
+  createdAt DateTime @default(now())
+}
+
+// ─────────────────────────────────────── Tabla de posiciones (precalculada)
+
+model Standing {
+  id            String   @id @default(uuid())
+  groupId       String?
+  group         Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  teamId        String   @unique
+  team          Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  played        Int      @default(0) // PJ
+  won           Int      @default(0) // PG
+  lost          Int      @default(0) // PP
+  points        Int      @default(0) // puntos FIVB
+  setsFor       Int      @default(0)
+  setsAgainst   Int      @default(0)
+  pointsFor     Int      @default(0)
+  pointsAgainst Int      @default(0)
+  rank          Int?
+
+  updatedAt     DateTime @updatedAt
+}
+
+// ─────────────────────────────────────── Llaves eliminatorias
+
+model Bracket {
+  id         String        @id @default(uuid())
+  categoryId String        @unique
+  category   Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  nodes      BracketNode[]
+}
+
+model BracketNode {
+  id         String       @id @default(uuid())
+  bracketId  String
+  bracket    Bracket      @relation(fields: [bracketId], references: [id], onDelete: Cascade)
+  round      String       // "R16" | "QF" | "SF" | "F"
+  position   Int          // posición dentro de la ronda
+  matchId    String?      @unique
+  match      Match?       @relation(fields: [matchId], references: [id])
+  nextNodeId String?      // a qué nodo avanza el ganador
+  nextNode   BracketNode? @relation("NodeProgression", fields: [nextNodeId], references: [id])
+  prevNodes  BracketNode[] @relation("NodeProgression")
+}
+
+// ─────────────────────────────────────── Pagos, comunicados, auditoría
+
+model Payment {
+  id           String        @id @default(uuid())
+  tournamentId String
+  tournament   Tournament    @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  clubId       String
+  club         Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  amount       Decimal       @db.Decimal(10, 2)
+  currency     String        @default("USD")
+  status       PaymentStatus @default(PENDING)
+  provider     String?       // stripe | paypal | ...
+  reference    String?
+  createdAt    DateTime      @default(now())
+}
+
+model Announcement {
+  id           String     @id @default(uuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  title        String
+  body         String
+  publishedAt  DateTime   @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String   // CREATE_TOURNAMENT | FINISH_MATCH | ...
+  entity    String   // Tournament | Match | Payment ...
+  entityId  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+}
+
+// Token de dispositivo para push (FCM). El público lo registra para seguir
+// equipos/torneos favoritos vía topics de Firebase Cloud Messaging.
+model DeviceToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  platform  String?  // android | ios | web
+  createdAt DateTime @default(now())
+}
+
+enum RegistrationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+// Inscripción pública de un equipo a un torneo/categoría. La organización la
+// revisa y, al aceptarla, se materializa en Club + Team + Players.
+model Registration {
+  id           String             @id @default(uuid())
+  tournamentId String
+  categoryId   String
+  teamName     String
+  clubName     String?
+  city         String?
+  // Datos de contacto del delegado para validación.
+  contactName  String
+  contactEmail String
+  contactPhone String
+  // Jugadores: [{fullName, document, age, eps, jerseyNumber, position}]
+  players      Json
+  status       RegistrationStatus @default(PENDING)
+  notes        String?
+  createdAt    DateTime           @default(now())
+  reviewedAt   DateTime?
+}

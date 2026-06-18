@@ -1,0 +1,19 @@
+# Hosting del frontend Flutter web en Netlify.
+#
+# Como Netlify no trae Flutter, lo más simple es compilar en tu PC y subir la
+# carpeta build/web (arrastrar y soltar en Netlify, o `netlify deploy --prod`).
+# Compila apuntando al backend desplegado:
+#   flutter build web --release --dart-define=API_BASE_URL=https://caribbean-fest-api.onrender.com
+#
+# Si conectas el repo y quieres que Netlify compile, descomenta el bloque [build]
+# (instala Flutter en cada build; más lento).
+
+[build]
+  publish = "build/web"
+  # command = "git clone https://github.com/flutter/flutter.git -b stable --depth 1 _flutter && _flutter/bin/flutter build web --release --dart-define=API_BASE_URL=$API_BASE_URL"
+
+# La app usa enrutado con hash (/#/...), pero dejamos el fallback SPA por robustez.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

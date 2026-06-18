@@ -1,0 +1,32 @@
+# Dependencias
+node_modules/
+backend/node_modules/
+mobile/.dart_tool/
+mobile/.packages
+mobile/build/
+
+# Build output
+backend/dist/
+backend/.pgtmp/
+
+# Prisma
+backend/prisma/*.db
+
+# Entorno
+.env
+backend/.env
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Flutter
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies

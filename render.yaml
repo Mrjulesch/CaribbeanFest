@@ -10,9 +10,10 @@ services:
     rootDir: backend
     plan: free
     region: oregon
-    buildCommand: npm ci && npx prisma generate && npm run build
-    # Aplica el esquema a la BD y arranca. db push es idempotente.
-    startCommand: npx prisma db push --skip-generate --accept-data-loss && node dist/main.js
+    # El esquema se sincroniza en el BUILD (no al arrancar), para que el servidor
+    # levante rápido y los errores de BD se vean claros en el log de build.
+    buildCommand: npm ci && npx prisma generate && npm run build && npx prisma db push --skip-generate --accept-data-loss
+    startCommand: node dist/main.js
     healthCheckPath: /api/tournaments
     envVars:
       - key: DATABASE_URL

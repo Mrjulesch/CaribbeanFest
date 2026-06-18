@@ -1,0 +1,18 @@
+# Despliegue continuo del frontend Flutter web en Netlify (conectado a GitHub).
+# En cada push a main, Netlify instala Flutter, compila la web apuntando a la API
+# de Render y publica mobile/build/web. No hay que subir nada a mano.
+[build]
+  base = "mobile"
+  publish = "build/web"
+  command = """
+    git clone https://github.com/flutter/flutter.git -b stable --depth 1 $HOME/flutter && \
+    export PATH="$HOME/flutter/bin:$PATH" && \
+    flutter --version && \
+    flutter build web --release --dart-define=API_BASE_URL=https://caribbean-fest-api.onrender.com
+  """
+
+# Enrutado SPA (la app usa hash, pero dejamos el fallback por robustez).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

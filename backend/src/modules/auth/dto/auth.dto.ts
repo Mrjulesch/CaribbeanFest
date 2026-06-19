@@ -30,3 +30,16 @@ export class RefreshDto {
   @IsString()
   refreshToken!: string;
 }
+
+// Creación de un co-administrador (solo un admin puede hacerlo).
+export class CreateAdminDto {
+  @IsEmail()
+  email!: string;
+
+  @IsString()
+  @MinLength(8)
+  password!: string;
+
+  @IsString()
+  fullName!: string;
+}

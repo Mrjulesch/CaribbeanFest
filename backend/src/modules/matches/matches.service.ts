@@ -39,6 +39,14 @@ export class MatchesService {
     return match;
   }
 
+  /** (Admin) Fija/actualiza el link de transmisión en vivo del partido. */
+  setStream(id: string, streamUrl?: string) {
+    return this.prisma.match.update({
+      where: { id },
+      data: { streamUrl: streamUrl && streamUrl.trim() ? streamUrl.trim() : null },
+    });
+  }
+
   /** Partidos asignados a un árbitro, resueltos por el id de USUARIO autenticado
    *  (la asignación apunta al perfil de árbitro, cuyo userId es este). */
   assignedTo(userId: string) {

@@ -17,6 +17,7 @@ dependencies:
   intl: ^0.19.0 # formato de fechas
   qr_flutter: ^4.1.0 # compartir por QR
   share_plus: ^9.0.0 # compartir enlaces
+  url_launcher: ^6.2.5 # abrir links externos (transmisión, pagos)
 
 dev_dependencies:
   flutter_test:

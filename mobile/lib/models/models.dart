@@ -155,6 +155,7 @@ class Match {
     required this.homeSetsWon,
     required this.awaySetsWon,
     this.court,
+    this.streamUrl,
     this.sets = const [],
   });
 
@@ -166,6 +167,7 @@ class Match {
   final int homeSetsWon;
   final int awaySetsWon;
   final CourtInfo? court;
+  final String? streamUrl;
   final List<MatchSet> sets;
 
   factory Match.fromJson(Map<String, dynamic> j) => Match(
@@ -177,6 +179,7 @@ class Match {
         homeSetsWon: (j['homeSetsWon'] as int?) ?? 0,
         awaySetsWon: (j['awaySetsWon'] as int?) ?? 0,
         court: j['court'] != null ? CourtInfo.fromJson(j['court'] as Map<String, dynamic>) : null,
+        streamUrl: j['streamUrl'] as String?,
         sets: ((j['sets'] as List?) ?? [])
             .map((s) => MatchSet.fromJson(s as Map<String, dynamic>))
             .toList(),

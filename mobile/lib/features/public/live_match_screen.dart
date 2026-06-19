@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api_client.dart';
 import '../../core/live_match_service.dart';
@@ -73,6 +74,15 @@ class _LiveMatchScreenState extends ConsumerState<LiveMatchScreen> {
                         const SizedBox(width: 4),
                         Text(m.court!.label, style: const TextStyle(color: Colors.blueGrey)),
                       ],
+                    ),
+                  ],
+                  if (m.streamUrl != null && m.streamUrl!.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                      icon: const Icon(Icons.live_tv),
+                      label: const Text('Ver en vivo'),
+                      onPressed: () => launchUrl(Uri.parse(m.streamUrl!), mode: LaunchMode.externalApplication),
                     ),
                   ],
                   const SizedBox(height: 24),

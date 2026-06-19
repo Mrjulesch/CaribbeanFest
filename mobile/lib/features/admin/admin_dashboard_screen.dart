@@ -124,30 +124,49 @@ class AdminDashboardScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
-                Expanded(
-                  child: FilledButton.tonalIcon(
-                    icon: const Icon(Icons.sports),
-                    label: const Text('Árbitros'),
-                    onPressed: () => context.push('/admin/referees'),
-                  ),
+                FilledButton.tonalIcon(
+                  icon: const Icon(Icons.sports),
+                  label: const Text('Árbitros'),
+                  onPressed: () => context.push('/admin/referees'),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: FilledButton.tonalIcon(
-                    icon: const Icon(Icons.how_to_reg),
-                    label: const Text('Inscripciones'),
-                    onPressed: () => context.push('/admin/registrations'),
-                  ),
+                FilledButton.tonalIcon(
+                  icon: const Icon(Icons.how_to_reg),
+                  label: const Text('Inscripciones'),
+                  onPressed: () => context.push('/admin/registrations'),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: FilledButton.tonalIcon(
-                    icon: const Icon(Icons.mail_outline),
-                    label: const Text('Mensajes'),
-                    onPressed: () => context.push('/admin/messages'),
-                  ),
+                FilledButton.tonalIcon(
+                  icon: const Icon(Icons.mail_outline),
+                  label: const Text('Mensajes'),
+                  onPressed: () => context.push('/admin/messages'),
+                ),
+                FilledButton.tonalIcon(
+                  icon: const Icon(Icons.admin_panel_settings),
+                  label: const Text('Co-admin'),
+                  onPressed: () async {
+                    final d = await showFormDialog(context, title: 'Nuevo co-administrador', fields: [
+                      FieldSpec('fullName', 'Nombre completo'),
+                      FieldSpec('email', 'Correo'),
+                      FieldSpec('password', 'Contraseña (mín. 8)'),
+                    ]);
+                    if (d == null || d['fullName']!.isEmpty || d['email']!.isEmpty || (d['password']?.length ?? 0) < 8) {
+                      if (context.mounted) snack('Completa nombre, correo y contraseña (mín. 8).');
+                      return;
+                    }
+                    try {
+                      await api.post('/auth/admins', data: {
+                        'fullName': d['fullName'],
+                        'email': d['email'],
+                        'password': d['password'],
+                      });
+                      if (context.mounted) snack('Co-administrador "${d['fullName']}" creado');
+                    } catch (e) {
+                      if (context.mounted) snack('Error: no se pudo crear (¿correo ya registrado?)');
+                    }
+                  },
                 ),
               ],
             ),

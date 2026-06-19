@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,8 +23,20 @@ class AdminManageScreen extends ConsumerWidget {
       ref.invalidate(tournamentProvider(tournamentId));
       if (context.mounted) _snack(context, okMsg);
     } catch (e) {
-      if (context.mounted) _snack(context, 'Error: $e');
+      if (context.mounted) _snack(context, _friendlyError(e));
     }
+  }
+
+  /// Extrae el mensaje claro que envía la API (ej. "La categoría necesita al menos 2 equipos").
+  static String _friendlyError(Object e) {
+    if (e is DioException) {
+      final data = e.response?.data;
+      if (data is Map && data['message'] != null) {
+        final m = data['message'];
+        return m is List ? m.join(', ') : m.toString();
+      }
+    }
+    return 'Ocurrió un error. Inténtalo de nuevo.';
   }
 
   @override

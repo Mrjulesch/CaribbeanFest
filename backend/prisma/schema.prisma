@@ -259,6 +259,7 @@ model Match {
   homeSetsWon  Int         @default(0)
   awaySetsWon  Int         @default(0)
   notes        String?     // observaciones del árbitro
+  streamUrl    String?     // link de transmisión en vivo (YouTube / Kick)
 
   sets         MatchSet[]
   assignments  RefereeAssignment[]

@@ -1,13 +1,24 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
+import { IsOptional, IsString } from 'class-validator';
 import { MatchStatus, Role } from '@prisma/client';
 import { MatchesService } from './matches.service';
 import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser, AuthUser } from '../../common/decorators/current-user.decorator';
 
+class SetStreamDto {
+  @IsOptional() @IsString() streamUrl?: string;
+}
+
 @Controller('matches')
 export class MatchesController {
   constructor(private readonly matches: MatchesService) {}
+
+  /** (Admin) Define el link de transmisión en vivo (YouTube/Kick) del partido. */
+  @Roles(Role.ADMIN) @Patch(':id/stream')
+  setStream(@Param('id') id: string, @Body() dto: SetStreamDto) {
+    return this.matches.setStream(id, dto.streamUrl);
+  }
 
   @Public()
   @Get()

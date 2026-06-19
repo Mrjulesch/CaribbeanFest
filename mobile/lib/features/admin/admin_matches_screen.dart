@@ -86,14 +86,36 @@ class _MatchTile extends ConsumerWidget {
           onSelected: (v) {
             if (v == 'assign') _assign(context, ref, api);
             if (v == 'edit') _editScore(context, ref, api);
+            if (v == 'stream') _setStream(context, ref, api);
           },
           itemBuilder: (_) => const [
             PopupMenuItem(value: 'assign', child: ListTile(leading: Icon(Icons.sports), title: Text('Asignar árbitro'))),
             PopupMenuItem(value: 'edit', child: ListTile(leading: Icon(Icons.scoreboard), title: Text('Editar marcador'))),
+            PopupMenuItem(value: 'stream', child: ListTile(leading: Icon(Icons.live_tv), title: Text('Link de transmisión'))),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _setStream(BuildContext context, WidgetRef ref, ApiClient api) async {
+    final d = await showFormDialog(context, title: 'Link de transmisión', fields: [
+      FieldSpec('url', 'URL de YouTube o Kick', initial: match.streamUrl),
+    ]);
+    if (d == null) return;
+    try {
+      await api.raw.patch('/matches/${match.id}/stream', data: {'streamUrl': d['url']});
+      ref.invalidate(matchesProvider(categoryId));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(d['url']!.isEmpty ? 'Link quitado' : 'Link de transmisión guardado')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
   }
 
   Future<void> _editScore(BuildContext context, WidgetRef ref, ApiClient api) async {

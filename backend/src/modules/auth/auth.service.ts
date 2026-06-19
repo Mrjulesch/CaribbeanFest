@@ -29,6 +29,17 @@ export class AuthService {
     return this.issueTokens(user.id, user.email, user.role);
   }
 
+  /** Crea un co-administrador (rol ADMIN). Solo lo invoca un admin autenticado. */
+  async createAdmin(dto: { email: string; password: string; fullName: string }) {
+    const exists = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    if (exists) throw new ConflictException('El correo ya está registrado');
+    const passwordHash = await argon2.hash(dto.password);
+    const user = await this.prisma.user.create({
+      data: { email: dto.email, passwordHash, fullName: dto.fullName, role: 'ADMIN' },
+    });
+    return { id: user.id, email: user.email, role: user.role, fullName: user.fullName };
+  }
+
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (!user || !user.isActive) throw new UnauthorizedException('Credenciales inválidas');

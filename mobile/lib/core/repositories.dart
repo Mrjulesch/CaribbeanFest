@@ -53,6 +53,12 @@ final matchAssignmentsProvider = FutureProvider.family<List<String>, String>((re
       .toList();
 });
 
+/// Admin: mensajes del formulario "Contáctanos".
+final contactMessagesProvider = FutureProvider.autoDispose<List<dynamic>>((ref) async {
+  final data = await ref.read(apiClientProvider).get('/contact') as List;
+  return data;
+});
+
 /// Admin: inscripciones por estado (PENDING/ACCEPTED/REJECTED). autoDispose → fresco.
 final registrationsProvider = FutureProvider.autoDispose.family<List<dynamic>, String>((ref, status) async {
   final data = await ref.read(apiClientProvider).get('/registrations', query: {'status': status}) as List;

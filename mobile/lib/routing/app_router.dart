@@ -16,6 +16,7 @@ import '../features/admin/admin_teams_screen.dart';
 import '../features/admin/admin_matches_screen.dart';
 import '../features/admin/admin_referees_screen.dart';
 import '../features/admin/admin_registrations_screen.dart';
+import '../features/admin/admin_messages_screen.dart';
 import '../features/public/register_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -77,6 +78,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin/registrations',
         builder: (_, __) => const RoleGuard(role: 'ADMIN', child: AdminRegistrationsScreen()),
+      ),
+      GoRoute(
+        path: '/admin/messages',
+        builder: (_, __) => const RoleGuard(role: 'ADMIN', child: AdminMessagesScreen()),
       ),
     ],
   );

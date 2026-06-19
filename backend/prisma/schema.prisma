@@ -401,6 +401,16 @@ enum RegistrationStatus {
   REJECTED
 }
 
+// Mensaje del formulario público "Contáctanos".
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  message   String
+  handled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
 // Inscripción pública de un equipo a un torneo/categoría. La organización la
 // revisa y, al aceptarla, se materializa en Club + Team + Players.
 model Registration {

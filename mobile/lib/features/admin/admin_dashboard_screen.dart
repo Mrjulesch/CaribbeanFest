@@ -141,6 +141,14 @@ class AdminDashboardScreen extends ConsumerWidget {
                     onPressed: () => context.push('/admin/registrations'),
                   ),
                 ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FilledButton.tonalIcon(
+                    icon: const Icon(Icons.mail_outline),
+                    label: const Text('Mensajes'),
+                    onPressed: () => context.push('/admin/messages'),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),

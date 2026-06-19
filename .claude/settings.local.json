@@ -17,7 +17,21 @@
       "Bash(git init *)",
       "Bash(git config *)",
       "Bash(git add *)",
-      "Bash(grep -E \"node_modules|\\\\.env$|/build/|\\\\.pgtmp\")"
+      "Bash(grep -E \"node_modules|\\\\.env$|/build/|\\\\.pgtmp\")",
+      "Bash(git branch *)",
+      "Bash(git commit -q -m ' *)",
+      "Bash(git push *)",
+      "Bash(curl -s -o /tmp/resp.txt -w \"%{http_code}\" --max-time 90 https://caribbean-fest-api.onrender.com/api/tournaments)",
+      "Read(//tmp/**)",
+      "Bash(curl -s -o /tmp/r2.txt -w \"%{http_code}\" --max-time 90 https://caribbean-fest-api.onrender.com/api/tournaments)",
+      "Bash(curl -s -o /dev/null -w \"raiz HTTP %{http_code}\\\\n\" --max-time 60 https://caribbean-fest-api.onrender.com/)",
+      "Bash(echo \"push exit: $?\")",
+      "Bash(curl -s -o /tmp/idx.txt -w '%{http_code}' --max-time 30 https://caribbeanfest.netlify.app/)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' --max-time 30 https://caribbeanfest.netlify.app/main.dart.js)",
+      "Bash(curl -s -o /tmp/login.txt -w \"%{http_code}\" --max-time 60 -X POST https://caribbean-fest-api.onrender.com/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"mrjulesch@gmail.com\",\"password\":\"Jech5235*#\"}')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" --max-time 60 -X POST https://caribbean-fest-api.onrender.com/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"mrjulesch@gmail.com\",\"password\":\"Jech523527\"}')",
+      "Bash(curl -s -D - -o /dev/null --max-time 60 -X OPTIONS \"https://caribbean-fest-api.onrender.com/api/auth/login\" -H \"Origin: https://lambent-cheesecake-91a99d.netlify.app\" -H \"Access-Control-Request-Method: POST\" -H \"Access-Control-Request-Headers: content-type\")",
+      "Bash(git rm *)"
     ]
   }
 }

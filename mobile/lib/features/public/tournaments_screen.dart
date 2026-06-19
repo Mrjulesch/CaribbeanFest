@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/repositories.dart';
 import '../../widgets/app_scaffold.dart';
+import '../../widgets/app_footer.dart';
 
 /// Pantalla pública de inicio: lista de torneos. No requiere login.
 class TournamentsScreen extends ConsumerWidget {
@@ -29,18 +30,26 @@ class TournamentsScreen extends ConsumerWidget {
         error: (e, _) => _ErrorView(message: 'No se pudieron cargar los torneos', onRetry: () => ref.invalidate(tournamentsProvider)),
         data: (list) {
           if (list.isEmpty) {
-            return const Center(
-              child: Text('Aún no hay torneos publicados',
-                  style: TextStyle(color: Colors.white, fontSize: 16)),
+            return ListView(
+              padding: const EdgeInsets.all(16),
+              children: const [
+                SizedBox(height: 40),
+                Center(
+                  child: Text('Aún no hay torneos publicados',
+                      style: TextStyle(color: Colors.white, fontSize: 16)),
+                ),
+                AppFooter(),
+              ],
             );
           }
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(tournamentsProvider),
             child: ListView.separated(
               padding: const EdgeInsets.all(16),
-              itemCount: list.length,
+              itemCount: list.length + 1, // +1 = pie de página
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (_, i) {
+                if (i == list.length) return const AppFooter();
                 final t = list[i];
                 return Card(
                   child: ListTile(

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/auth_controller.dart';
+import 'contact_form.dart';
 
 /// Barra de navegación lateral. Muestra enlaces según el rol autenticado.
 class AppDrawer extends ConsumerWidget {
@@ -51,6 +52,14 @@ class AppDrawer extends ConsumerWidget {
             leading: const Icon(Icons.how_to_reg),
             title: const Text('Inscribir equipo'),
             onTap: () => go('/inscripcion'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.mail_outline),
+            title: const Text('Contáctanos'),
+            onTap: () {
+              Navigator.of(context).pop(); // cierra el drawer
+              showContactDialog(context, ref);
+            },
           ),
           if (!auth.isAuthenticated)
             ListTile(

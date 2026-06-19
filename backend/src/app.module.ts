@@ -16,6 +16,7 @@ import { StatsModule } from './modules/stats/stats.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { RegistrationsModule } from './modules/registrations/registrations.module';
+import { ContactModule } from './modules/contact/contact.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -36,6 +37,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     ReportsModule,
     NotificationsModule,
     RegistrationsModule,
+    ContactModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

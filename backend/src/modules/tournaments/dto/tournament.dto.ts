@@ -28,6 +28,10 @@ export class CreateTournamentDto {
   @IsOptional()
   @IsUrl()
   rulebookUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  paymentLink?: string;
 }
 
 export class UpdateTournamentDto {
@@ -37,6 +41,7 @@ export class UpdateTournamentDto {
   @IsOptional() @IsUrl() logoUrl?: string;
   @IsOptional() @IsUrl() rulebookUrl?: string;
   @IsOptional() @IsBoolean() isPublished?: boolean;
+  @IsOptional() @IsString() paymentLink?: string;
 }
 
 export class CreateCategoryDto {

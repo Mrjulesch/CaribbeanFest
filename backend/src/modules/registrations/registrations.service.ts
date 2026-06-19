@@ -20,6 +20,15 @@ export class RegistrationsService {
     const r = await this.prisma.registration.findUnique({ where: { id } });
     if (!r) throw new NotFoundException('Inscripción no encontrada');
 
+    // Si el admin no pega un link, usamos el del torneo (ej. Wompi).
+    if (!paymentLink || !paymentLink.trim()) {
+      const t = await this.prisma.tournament.findUnique({
+        where: { id: r.tournamentId },
+        select: { paymentLink: true },
+      });
+      paymentLink = t?.paymentLink ?? undefined;
+    }
+
     const html = `
       <h2>¡Inscripción aceptada! 🏐</h2>
       <p>Hola ${r.contactName}, tu equipo <b>${r.teamName}</b> fue aceptado en Caribbean Fest.</p>

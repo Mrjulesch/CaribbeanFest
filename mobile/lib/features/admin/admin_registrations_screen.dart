@@ -32,7 +32,7 @@ class AdminRegistrationsScreen extends ConsumerWidget {
       final d = await showFormDialog(context,
           title: 'Aprobar y enviar pago',
           okLabel: 'Enviar correo',
-          fields: [FieldSpec('paymentLink', 'Link de pago externo (opcional)')]);
+          fields: [FieldSpec('paymentLink', 'Link de pago (vacío = usar el del torneo)')]);
       if (d == null) return;
       try {
         await api.post('/registrations/$id/approve', data: {'paymentLink': d['paymentLink']});

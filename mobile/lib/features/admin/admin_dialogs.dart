@@ -62,6 +62,7 @@ Future<Map<String, dynamic>?> showEditTournamentDialog(
   required String name,
   DateTime? start,
   DateTime? end,
+  String? paymentLink,
 }) {
   return showDialog<Map<String, dynamic>>(
     context: context,
@@ -71,6 +72,7 @@ Future<Map<String, dynamic>?> showEditTournamentDialog(
       initialName: name,
       initialStart: start,
       initialEnd: end,
+      initialPaymentLink: paymentLink,
     ),
   );
 }
@@ -82,12 +84,14 @@ class _TournamentDialog extends StatefulWidget {
     this.initialName,
     this.initialStart,
     this.initialEnd,
+    this.initialPaymentLink,
   });
   final String title;
   final String okLabel;
   final String? initialName;
   final DateTime? initialStart;
   final DateTime? initialEnd;
+  final String? initialPaymentLink;
 
   @override
   State<_TournamentDialog> createState() => _TournamentDialogState();
@@ -95,6 +99,8 @@ class _TournamentDialog extends StatefulWidget {
 
 class _TournamentDialogState extends State<_TournamentDialog> {
   late final TextEditingController _name = TextEditingController(text: widget.initialName ?? '');
+  late final TextEditingController _paymentLink =
+      TextEditingController(text: widget.initialPaymentLink ?? '');
   late DateTime? _start = widget.initialStart;
   late DateTime? _end = widget.initialEnd;
 
@@ -130,6 +136,15 @@ class _TournamentDialogState extends State<_TournamentDialog> {
           Row(children: [
             Expanded(child: OutlinedButton.icon(onPressed: () => _pick(false), icon: const Icon(Icons.event), label: Text('Fin: ${_fmt(_end)}'))),
           ]),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _paymentLink,
+            decoration: const InputDecoration(
+              labelText: 'Link de pago Wompi (opcional)',
+              hintText: 'https://checkout.wompi.co/l/...',
+              border: OutlineInputBorder(),
+            ),
+          ),
         ],
       ),
       actions: [
@@ -141,6 +156,7 @@ class _TournamentDialogState extends State<_TournamentDialog> {
               'name': _name.text.trim(),
               'startDate': _start!.toIso8601String(),
               'endDate': _end!.toIso8601String(),
+              'paymentLink': _paymentLink.text.trim(),
             });
           },
           child: Text(widget.okLabel),

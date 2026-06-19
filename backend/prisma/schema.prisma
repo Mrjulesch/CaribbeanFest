@@ -92,6 +92,7 @@ model Tournament {
   startDate     DateTime
   endDate       DateTime
   isPublished   Boolean           @default(false)
+  paymentLink   String?           // link de pago (Wompi) usado al aprobar inscripciones
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
 

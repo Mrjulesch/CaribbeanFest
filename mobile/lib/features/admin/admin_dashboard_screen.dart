@@ -39,8 +39,8 @@ class AdminDashboardScreen extends ConsumerWidget {
       }
     }
 
-    Future<void> editTournament(String id, String name, DateTime start, DateTime end) async {
-      final d = await showEditTournamentDialog(context, name: name, start: start, end: end);
+    Future<void> editTournament(String id, String name, DateTime start, DateTime end, String? paymentLink) async {
+      final d = await showEditTournamentDialog(context, name: name, start: start, end: end, paymentLink: paymentLink);
       if (d == null) return;
       try {
         await api.raw.patch('/tournaments/$id', data: d);
@@ -201,7 +201,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                     trailing: PopupMenuButton<String>(
                       onSelected: (v) {
                         if (v == 'manage') context.push('/admin/tournament/${t.id}');
-                        if (v == 'edit') editTournament(t.id, t.name, t.startDate, t.endDate);
+                        if (v == 'edit') editTournament(t.id, t.name, t.startDate, t.endDate, t.paymentLink);
                         if (v == 'publish') togglePublish(t.id, !t.isPublished);
                         if (v == 'share') {
                           showShareTournamentDialog(context,

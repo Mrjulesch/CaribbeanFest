@@ -8,6 +8,7 @@ class Tournament {
     required this.startDate,
     required this.endDate,
     this.isPublished = false,
+    this.paymentLink,
     this.categories = const [],
     this.venues = const [],
   });
@@ -18,6 +19,7 @@ class Tournament {
   final DateTime startDate;
   final DateTime endDate;
   final bool isPublished;
+  final String? paymentLink;
   final List<Category> categories;
   final List<Venue> venues;
 
@@ -28,6 +30,7 @@ class Tournament {
         startDate: DateTime.parse(j['startDate'] as String),
         endDate: DateTime.parse(j['endDate'] as String),
         isPublished: (j['isPublished'] as bool?) ?? false,
+        paymentLink: j['paymentLink'] as String?,
         categories: ((j['categories'] as List?) ?? [])
             .map((c) => Category.fromJson(c as Map<String, dynamic>))
             .toList(),

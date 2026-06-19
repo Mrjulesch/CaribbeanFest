@@ -21,6 +21,7 @@ export class TournamentsService {
         endDate: new Date(dto.endDate),
         logoUrl: dto.logoUrl,
         rulebookUrl: dto.rulebookUrl,
+        paymentLink: dto.paymentLink,
       },
     });
   }

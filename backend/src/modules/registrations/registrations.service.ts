@@ -1,11 +1,41 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { RegistrationStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 import { CreateRegistrationDto } from './dto/registration.dto';
 
 @Injectable()
 export class RegistrationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mail: MailService,
+  ) {}
+
+  /**
+   * Aprueba la inscripción: envía al delegado el correo de aceptación con el link
+   * de pago externo. NO inscribe al equipo todavía (eso ocurre al confirmar el pago
+   * con accept()), por lo que el equipo aún no entra a los fixtures.
+   */
+  async approve(id: string, paymentLink?: string) {
+    const r = await this.prisma.registration.findUnique({ where: { id } });
+    if (!r) throw new NotFoundException('Inscripción no encontrada');
+
+    const html = `
+      <h2>¡Inscripción aceptada! 🏐</h2>
+      <p>Hola ${r.contactName}, tu equipo <b>${r.teamName}</b> fue aceptado en Caribbean Fest.</p>
+      ${paymentLink ? `<p>Para confirmar tu cupo, realiza el pago aquí:</p>
+        <p><a href="${paymentLink}" style="background:#0A4FA0;color:#fff;padding:10px 18px;border-radius:6px;text-decoration:none">Pagar inscripción</a></p>
+        <p>O copia este enlace: ${paymentLink}</p>` : ''}
+      <p>Una vez confirmemos el pago, tu equipo quedará inscrito en el fixture.</p>
+      <p>— Organización Caribbean Fest</p>`;
+
+    await this.mail.send(r.contactEmail, 'Aceptación de inscripción · Caribbean Fest', html);
+
+    return this.prisma.registration.update({
+      where: { id },
+      data: { paymentLink: paymentLink ?? null, approvalSentAt: new Date() },
+    });
+  }
 
   /** Envío público de una inscripción (queda PENDIENTE de validación). */
   create(dto: CreateRegistrationDto) {

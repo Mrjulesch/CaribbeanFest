@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { RegistrationStatus, Role } from '@prisma/client';
 import { RegistrationsService } from './registrations.service';
-import { CreateRegistrationDto, RejectRegistrationDto } from './dto/registration.dto';
+import { ApproveRegistrationDto, CreateRegistrationDto, RejectRegistrationDto } from './dto/registration.dto';
 import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 
@@ -19,6 +19,12 @@ export class RegistrationsController {
   @Roles(Role.ADMIN) @Get()
   list(@Query('status') status?: RegistrationStatus) {
     return this.registrations.list(status);
+  }
+
+  /** Envía el correo de aceptación + link de pago (no inscribe aún). */
+  @Roles(Role.ADMIN) @Post(':id/approve')
+  approve(@Param('id') id: string, @Body() dto: ApproveRegistrationDto) {
+    return this.registrations.approve(id, dto.paymentLink);
   }
 
   @Roles(Role.ADMIN) @Post(':id/accept')

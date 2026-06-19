@@ -4,8 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/api_client.dart';
 import '../../core/repositories.dart';
 import '../../widgets/app_scaffold.dart';
+import 'admin_dialogs.dart';
 
-/// Revisión de inscripciones: la organización acepta o rechaza solicitudes.
+/// Revisión de inscripciones: aprobar (correo + pago), inscribir o rechazar.
 class AdminRegistrationsScreen extends ConsumerWidget {
   const AdminRegistrationsScreen({super.key});
 
@@ -20,9 +21,25 @@ class AdminRegistrationsScreen extends ConsumerWidget {
       try {
         await api.post('/registrations/$id/$action');
         ref.invalidate(registrationsProvider('PENDING'));
-        if (context.mounted) snack(action == 'accept' ? 'Inscripción aceptada' : 'Inscripción rechazada');
+        if (context.mounted) snack(action == 'accept' ? 'Equipo inscrito' : 'Inscripción rechazada');
       } catch (e) {
         if (context.mounted) snack('Error: $e');
+      }
+    }
+
+    // Aprobar: pide el link de pago y envía el correo de aceptación.
+    Future<void> approve(String id) async {
+      final d = await showFormDialog(context,
+          title: 'Aprobar y enviar pago',
+          okLabel: 'Enviar correo',
+          fields: [FieldSpec('paymentLink', 'Link de pago externo (opcional)')]);
+      if (d == null) return;
+      try {
+        await api.post('/registrations/$id/approve', data: {'paymentLink': d['paymentLink']});
+        ref.invalidate(registrationsProvider('PENDING'));
+        if (context.mounted) snack('Correo de aceptación enviado');
+      } catch (e) {
+        if (context.mounted) snack('Error al enviar el correo');
       }
     }
 
@@ -41,15 +58,17 @@ class AdminRegistrationsScreen extends ConsumerWidget {
           }
           return ListView(
             padding: const EdgeInsets.all(12),
-            children: list.map((r) => _card(context, r as Map<String, dynamic>, act)).toList(),
+            children: list.map((r) => _card(context, r as Map<String, dynamic>, act, approve)).toList(),
           );
         },
       ),
     );
   }
 
-  Widget _card(BuildContext context, Map<String, dynamic> r, Future<void> Function(String, String) act) {
+  Widget _card(BuildContext context, Map<String, dynamic> r,
+      Future<void> Function(String, String) act, Future<void> Function(String) approve) {
     final players = (r['players'] as List?) ?? [];
+    final approved = r['approvalSentAt'] != null;
     return Card(
       child: ExpansionTile(
         leading: const Icon(Icons.how_to_reg),
@@ -76,19 +95,38 @@ class AdminRegistrationsScreen extends ConsumerWidget {
               child: Text(parts.join(' · '), style: const TextStyle(fontSize: 13)),
             );
           }),
+          if (approved)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Row(children: [
+                const Icon(Icons.mark_email_read, size: 16, color: Colors.green),
+                const SizedBox(width: 4),
+                Text(
+                  'Correo de aceptación enviado'
+                  '${(r['paymentLink'] != null && '${r['paymentLink']}'.isNotEmpty) ? " · con link de pago" : ""}',
+                  style: const TextStyle(fontSize: 12, color: Colors.green),
+                ),
+              ]),
+            ),
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          Wrap(
+            alignment: WrapAlignment.end,
+            spacing: 8,
+            runSpacing: 8,
             children: [
               OutlinedButton.icon(
                 icon: const Icon(Icons.close, color: Colors.red),
                 label: const Text('Rechazar', style: TextStyle(color: Colors.red)),
                 onPressed: () => act(r['id'] as String, 'reject'),
               ),
-              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                icon: const Icon(Icons.mail_outline),
+                label: const Text('Aprobar y enviar pago'),
+                onPressed: () => approve(r['id'] as String),
+              ),
               FilledButton.icon(
                 icon: const Icon(Icons.check),
-                label: const Text('Aceptar'),
+                label: const Text('Inscribir'),
                 onPressed: () => act(r['id'] as String, 'accept'),
               ),
             ],

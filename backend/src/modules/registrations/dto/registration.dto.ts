@@ -43,3 +43,7 @@ export class CreateRegistrationDto {
 export class RejectRegistrationDto {
   @IsOptional() @IsString() notes?: string;
 }
+
+export class ApproveRegistrationDto {
+  @IsOptional() @IsString() paymentLink?: string;
+}

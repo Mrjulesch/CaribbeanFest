@@ -426,9 +426,11 @@ model Registration {
   contactEmail String
   contactPhone String
   // Jugadores: [{fullName, document, age, eps, jerseyNumber, position}]
-  players      Json
-  status       RegistrationStatus @default(PENDING)
-  notes        String?
-  createdAt    DateTime           @default(now())
-  reviewedAt   DateTime?
+  players        Json
+  status         RegistrationStatus @default(PENDING)
+  notes          String?
+  paymentLink    String? // link de pago externo enviado en el correo de aceptación
+  approvalSentAt DateTime? // cuándo se envió el correo de aceptación + pago
+  createdAt      DateTime           @default(now())
+  reviewedAt     DateTime?
 }

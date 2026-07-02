@@ -31,6 +31,16 @@ export class RefreshDto {
   refreshToken!: string;
 }
 
+// Cambio de contraseña del propio usuario autenticado.
+export class ChangePasswordDto {
+  @IsString()
+  currentPassword!: string;
+
+  @IsString()
+  @MinLength(8)
+  newPassword!: string;
+}
+
 // Creación de un co-administrador (solo un admin puede hacerlo).
 export class CreateAdminDto {
   @IsEmail()

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/auth_controller.dart';
 import 'contact_form.dart';
+import 'change_password.dart';
 
 /// Barra de navegación lateral. Muestra enlaces según el rol autenticado.
 class AppDrawer extends ConsumerWidget {
@@ -81,6 +82,14 @@ class AppDrawer extends ConsumerWidget {
             ),
           if (auth.isAuthenticated) ...[
             const Divider(),
+            ListTile(
+              leading: const Icon(Icons.password),
+              title: const Text('Cambiar contraseña'),
+              onTap: () {
+                Navigator.of(context).pop();
+                showChangePasswordDialog(context, ref);
+              },
+            ),
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Cerrar sesión'),

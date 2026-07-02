@@ -37,7 +37,10 @@
       "Bash(curl -s --max-time 60 -X POST https://caribbean-fest-api.onrender.com/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"mrjulesch@gmail.com\",\"password\":\"Jech523527\"}')",
       "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n' --max-time 60 -X POST __TRACKED_VAR__/auth/admins -H 'Content-Type: application/json' -d '{}')",
       "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n' --max-time 30 -X PATCH __TRACKED_VAR__/matches/x/stream -H 'Content-Type: application/json' -d '{}')",
-      "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n' --max-time 30 -X POST __TRACKED_VAR__/registrations/x/approve -H 'Content-Type: application/json' -d '{}')"
+      "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n' --max-time 30 -X POST __TRACKED_VAR__/registrations/x/approve -H 'Content-Type: application/json' -d '{}')",
+      "Bash(curl -s --max-time 60 -X POST https://api.cloudinary.com/v1_1/tbgfw1i0/auto/upload -F file=@/tmp/test.pdf -F upload_preset=tjrc8mbm)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" --max-time 60 -X POST https://caribbean-fest-api.onrender.com/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"mrjulesch@gmail.com\",\"password\":\"Jech5235*#\"}')",
+      "Bash(echo 'login mrjulesch con nueva contraseña -> HTTP __CMDSUB_OUTPUT__')"
     ]
   }
 }

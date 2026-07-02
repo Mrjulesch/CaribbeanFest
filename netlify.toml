@@ -8,7 +8,7 @@
     git clone https://github.com/flutter/flutter.git -b stable --depth 1 $HOME/flutter && \
     export PATH="$HOME/flutter/bin:$PATH" && \
     flutter --version && \
-    flutter build web --release --dart-define=API_BASE_URL=https://caribbean-fest-api.onrender.com
+    flutter build web --release --dart-define=API_BASE_URL=https://caribbean-fest-api.onrender.com --dart-define=CLOUDINARY_CLOUD_NAME=tbgfw1i0 --dart-define=CLOUDINARY_UPLOAD_PRESET=tjrc8mbm
   """
 
 # Enrutado SPA (la app usa hash, pero dejamos el fallback por robustez).

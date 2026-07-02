@@ -55,6 +55,7 @@ export class RegistrationsService {
         teamName: dto.teamName,
         clubName: dto.clubName,
         city: dto.city,
+        consentUrl: dto.consentUrl,
         contactName: dto.contactName,
         contactEmail: dto.contactEmail,
         contactPhone: dto.contactPhone,

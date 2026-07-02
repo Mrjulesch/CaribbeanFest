@@ -1,8 +1,10 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/api_client.dart';
+import '../../core/cloudinary_service.dart';
 import '../../core/repositories.dart';
 import '../../widgets/app_scaffold.dart';
 
@@ -40,6 +42,32 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _contactPhone = TextEditingController();
   final List<_PlayerCtrls> _players = [_PlayerCtrls()];
   bool _submitting = false;
+  String? _consentUrl; // PDF subido a Cloudinary
+  String? _consentName;
+  bool _uploadingConsent = false;
+
+  Future<void> _pickConsent() async {
+    final picked = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      withData: true,
+    );
+    if (picked == null || picked.files.isEmpty) return;
+    final f = picked.files.first;
+    if (f.bytes == null) return;
+    setState(() => _uploadingConsent = true);
+    try {
+      final url = await CloudinaryService.uploadPdf(f.bytes!, f.name);
+      setState(() {
+        _consentUrl = url;
+        _consentName = f.name;
+      });
+    } catch (e) {
+      if (mounted) _snack('No se pudo subir el PDF: $e');
+    } finally {
+      if (mounted) setState(() => _uploadingConsent = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -80,6 +108,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         'teamName': _teamName.text.trim(),
         if (_clubName.text.trim().isNotEmpty) 'clubName': _clubName.text.trim(),
         if (_city.text.trim().isNotEmpty) 'city': _city.text.trim(),
+        if (_consentUrl != null) 'consentUrl': _consentUrl,
         'contactName': _contactName.text.trim(),
         'contactEmail': _contactEmail.text.trim(),
         'contactPhone': _contactPhone.text.trim(),
@@ -164,6 +193,26 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 _tf(_clubName, 'Club (opcional)'),
                 _tf(_city, 'Ciudad (opcional)'),
               ])),
+              if (CloudinaryService.ready) ...[
+                _section('Consentimiento de uso de imagen (PDF)'),
+                _card(Row(children: [
+                  Expanded(
+                    child: Text(
+                      _consentName ?? 'Adjunta el consentimiento del club (solo PDF).',
+                      style: TextStyle(color: _consentUrl != null ? Colors.green : Colors.black54),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  if (_uploadingConsent)
+                    const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  else
+                    OutlinedButton.icon(
+                      icon: Icon(_consentUrl != null ? Icons.check : Icons.upload_file),
+                      label: Text(_consentUrl != null ? 'Cambiar' : 'Adjuntar PDF'),
+                      onPressed: _pickConsent,
+                    ),
+                ])),
+              ],
               _section('Contacto del delegado'),
               _card(Column(children: [
                 _tf(_contactName, 'Nombre del delegado'),

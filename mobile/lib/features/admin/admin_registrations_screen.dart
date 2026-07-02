@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api_client.dart';
 import '../../core/repositories.dart';
@@ -79,6 +80,15 @@ class AdminRegistrationsScreen extends ConsumerWidget {
           _row('Club', r['clubName'] as String? ?? '—'),
           _row('Ciudad', r['city'] as String? ?? '—'),
           _row('Contacto', '${r['contactName'] ?? ''} · ${r['contactEmail'] ?? ''} · ${r['contactPhone'] ?? ''}'),
+          if (r['consentUrl'] != null && '${r['consentUrl']}'.isNotEmpty)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                icon: const Icon(Icons.picture_as_pdf, size: 18),
+                label: const Text('Ver consentimiento (PDF)'),
+                onPressed: () => launchUrl(Uri.parse('${r['consentUrl']}'), mode: LaunchMode.externalApplication),
+              ),
+            ),
           const Divider(),
           const Align(alignment: Alignment.centerLeft, child: Text('Jugadores', style: TextStyle(fontWeight: FontWeight.bold))),
           ...players.map((p) {

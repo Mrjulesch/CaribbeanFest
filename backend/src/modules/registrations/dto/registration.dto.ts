@@ -27,6 +27,7 @@ export class CreateRegistrationDto {
   @IsString() @MinLength(2) teamName!: string;
   @IsOptional() @IsString() clubName?: string;
   @IsOptional() @IsString() city?: string;
+  @IsOptional() @IsString() consentUrl?: string; // PDF de consentimiento (Cloudinary)
 
   // Datos de contacto del delegado.
   @IsString() @MinLength(2) contactName!: string;

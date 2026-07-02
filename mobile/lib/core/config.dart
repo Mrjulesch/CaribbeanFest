@@ -10,4 +10,14 @@ class AppConfig {
 
   /// Namespace de Socket.IO para el scoring en vivo.
   static String get liveSocketUrl => '$apiBaseUrl/live';
+
+  // Cloudinary (subida directa del PDF de consentimiento). Son valores PÚBLICOS,
+  // seguros de exponer. Se pasan al compilar: --dart-define=CLOUDINARY_CLOUD_NAME=...
+  static const String cloudinaryCloudName =
+      String.fromEnvironment('CLOUDINARY_CLOUD_NAME', defaultValue: '');
+  static const String cloudinaryUploadPreset =
+      String.fromEnvironment('CLOUDINARY_UPLOAD_PRESET', defaultValue: '');
+
+  static bool get cloudinaryReady =>
+      cloudinaryCloudName.isNotEmpty && cloudinaryUploadPreset.isNotEmpty;
 }

@@ -428,6 +428,7 @@ model Registration {
   contactPhone String
   // Jugadores: [{fullName, document, age, eps, jerseyNumber, position}]
   players        Json
+  consentUrl     String? // PDF de consentimiento de uso de imagen (Cloudinary)
   status         RegistrationStatus @default(PENDING)
   notes          String?
   paymentLink    String? // link de pago externo enviado en el correo de aceptación

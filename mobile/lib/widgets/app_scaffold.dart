@@ -59,7 +59,7 @@ class AppScaffold extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
-              colors: [Color(0xFF06203A), Color(0xFF0A4FA0), Color(0xFF12B0E8)],
+              colors: [Color(0xFF063B6E), Color(0xFF0E9BC4), Color(0xFF17C3C3)],
             ),
           ),
         ),
@@ -105,6 +105,7 @@ class _SideNav extends ConsumerWidget {
 
     final items = <_NavItem>[
       const _NavItem(Icons.emoji_events, 'Torneos', route: '/'),
+      const _NavItem(Icons.photo_library_outlined, 'Galería', route: '/galeria'),
       const _NavItem(Icons.how_to_reg, 'Inscribir', route: '/inscripcion'),
       if (auth.isAuthenticated && auth.user!.isAdmin)
         const _NavItem(Icons.admin_panel_settings, 'Admin', route: '/admin'),

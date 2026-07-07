@@ -7,8 +7,8 @@ import 'config.dart';
 class CloudinaryService {
   static bool get ready => AppConfig.cloudinaryReady;
 
-  /// Sube un PDF (bytes) y devuelve la URL segura del archivo.
-  static Future<String> uploadPdf(List<int> bytes, String filename) async {
+  /// Sube un archivo (PDF o imagen) y devuelve la URL segura.
+  static Future<String> upload(List<int> bytes, String filename) async {
     final form = FormData.fromMap({
       'file': MultipartFile.fromBytes(bytes, filename: filename),
       'upload_preset': AppConfig.cloudinaryUploadPreset,

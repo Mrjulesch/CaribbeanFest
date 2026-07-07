@@ -403,6 +403,20 @@ enum RegistrationStatus {
   REJECTED
 }
 
+enum GallerySection {
+  PAST // lo que ha sucedido / momentos del torneo
+  FUTURE // proyectos a futuro
+}
+
+// Foto de la galería pública (subida a Cloudinary por el admin).
+model GalleryItem {
+  id        String         @id @default(uuid())
+  imageUrl  String
+  caption   String?
+  section   GallerySection @default(PAST)
+  createdAt DateTime       @default(now())
+}
+
 // Mensaje del formulario público "Contáctanos".
 model ContactMessage {
   id        String   @id @default(uuid())

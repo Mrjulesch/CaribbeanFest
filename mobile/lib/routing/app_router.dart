@@ -18,6 +18,8 @@ import '../features/admin/admin_referees_screen.dart';
 import '../features/admin/admin_registrations_screen.dart';
 import '../features/admin/admin_messages_screen.dart';
 import '../features/public/register_screen.dart';
+import '../features/public/gallery_screen.dart';
+import '../features/admin/admin_gallery_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -38,6 +40,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
       GoRoute(path: '/inscripcion', builder: (_, __) => const RegisterScreen()),
+      GoRoute(path: '/galeria', builder: (_, __) => const GalleryScreen()),
       GoRoute(
         path: '/referee',
         builder: (_, __) => const RoleGuard(role: 'REFEREE', child: AssignedMatchesScreen()),
@@ -82,6 +85,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin/messages',
         builder: (_, __) => const RoleGuard(role: 'ADMIN', child: AdminMessagesScreen()),
+      ),
+      GoRoute(
+        path: '/admin/gallery',
+        builder: (_, __) => const RoleGuard(role: 'ADMIN', child: AdminGalleryScreen()),
       ),
     ],
   );

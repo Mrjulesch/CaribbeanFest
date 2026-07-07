@@ -104,6 +104,21 @@ class TeamRef {
       );
 }
 
+class GalleryItem {
+  GalleryItem({required this.id, required this.imageUrl, this.caption, required this.section});
+  final String id;
+  final String imageUrl;
+  final String? caption;
+  final String section; // PAST | FUTURE
+
+  factory GalleryItem.fromJson(Map<String, dynamic> j) => GalleryItem(
+        id: j['id'] as String,
+        imageUrl: j['imageUrl'] as String,
+        caption: j['caption'] as String?,
+        section: j['section'] as String? ?? 'PAST',
+      );
+}
+
 class RefereeRef {
   RefereeRef({required this.id, required this.name, this.license, this.assignmentCount = 0});
   final String id;

@@ -39,6 +39,12 @@ final teamsByCategoryProvider = FutureProvider.family<List<TeamRef>, String>((re
   return data.map((t) => TeamRef.fromJson(t as Map<String, dynamic>)).toList();
 });
 
+/// Galería pública de fotos (todas las secciones).
+final galleryProvider = FutureProvider.autoDispose<List<GalleryItem>>((ref) async {
+  final data = await ref.read(apiClientProvider).get('/gallery') as List;
+  return data.map((g) => GalleryItem.fromJson(g as Map<String, dynamic>)).toList();
+});
+
 /// Admin: lista de árbitros (perfiles). autoDispose → siempre datos frescos al entrar.
 final refereesProvider = FutureProvider.autoDispose<List<RefereeRef>>((ref) async {
   final data = await ref.read(apiClientProvider).get('/referees') as List;

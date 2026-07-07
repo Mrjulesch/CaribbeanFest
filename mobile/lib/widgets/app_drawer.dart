@@ -50,6 +50,11 @@ class AppDrawer extends ConsumerWidget {
             onTap: () => go('/'),
           ),
           ListTile(
+            leading: const Icon(Icons.photo_library_outlined),
+            title: const Text('Galería'),
+            onTap: () => go('/galeria'),
+          ),
+          ListTile(
             leading: const Icon(Icons.how_to_reg),
             title: const Text('Inscribir equipo'),
             onTap: () => go('/inscripcion'),

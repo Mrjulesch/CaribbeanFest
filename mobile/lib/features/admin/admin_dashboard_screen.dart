@@ -144,6 +144,11 @@ class AdminDashboardScreen extends ConsumerWidget {
                   onPressed: () => context.push('/admin/messages'),
                 ),
                 FilledButton.tonalIcon(
+                  icon: const Icon(Icons.photo_library_outlined),
+                  label: const Text('Galería'),
+                  onPressed: () => context.push('/admin/gallery'),
+                ),
+                FilledButton.tonalIcon(
                   icon: const Icon(Icons.admin_panel_settings),
                   label: const Text('Co-admin'),
                   onPressed: () async {

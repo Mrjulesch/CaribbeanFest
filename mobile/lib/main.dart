@@ -22,7 +22,7 @@ class CaribbeanFestApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0A4FA0),
+          seedColor: const Color(0xFF0E9BC4), // turquesa Caribe
           brightness: Brightness.light,
         ),
         useMaterial3: true,

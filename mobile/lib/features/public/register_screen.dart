@@ -57,7 +57,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (f.bytes == null) return;
     setState(() => _uploadingConsent = true);
     try {
-      final url = await CloudinaryService.uploadPdf(f.bytes!, f.name);
+      final url = await CloudinaryService.upload(f.bytes!, f.name);
       setState(() {
         _consentUrl = url;
         _consentName = f.name;

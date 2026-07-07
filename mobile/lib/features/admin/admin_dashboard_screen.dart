@@ -39,8 +39,8 @@ class AdminDashboardScreen extends ConsumerWidget {
       }
     }
 
-    Future<void> editTournament(String id, String name, DateTime start, DateTime end, String? paymentLink) async {
-      final d = await showEditTournamentDialog(context, name: name, start: start, end: end, paymentLink: paymentLink);
+    Future<void> editTournament(String id, String name, DateTime start, DateTime end, String? paymentLink, String? logoUrl) async {
+      final d = await showEditTournamentDialog(context, name: name, start: start, end: end, paymentLink: paymentLink, logoUrl: logoUrl);
       if (d == null) return;
       try {
         await api.raw.patch('/tournaments/$id', data: d);
@@ -187,7 +187,13 @@ class AdminDashboardScreen extends ConsumerWidget {
               ),
             ...list.map((t) => Card(
                   child: ListTile(
-                    leading: const Icon(Icons.emoji_events_outlined),
+                    leading: t.logoUrl != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(t.logoUrl!, width: 48, height: 48, fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const Icon(Icons.emoji_events_outlined)),
+                          )
+                        : const Icon(Icons.emoji_events_outlined),
                     title: Text(t.name),
                     subtitle: Row(
                       children: [
@@ -206,7 +212,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                     trailing: PopupMenuButton<String>(
                       onSelected: (v) {
                         if (v == 'manage') context.push('/admin/tournament/${t.id}');
-                        if (v == 'edit') editTournament(t.id, t.name, t.startDate, t.endDate, t.paymentLink);
+                        if (v == 'edit') editTournament(t.id, t.name, t.startDate, t.endDate, t.paymentLink, t.logoUrl);
                         if (v == 'publish') togglePublish(t.id, !t.isPublished);
                         if (v == 'share') {
                           showShareTournamentDialog(context,

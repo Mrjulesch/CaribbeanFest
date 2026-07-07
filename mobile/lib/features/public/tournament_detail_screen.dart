@@ -36,6 +36,14 @@ class TournamentDetailScreen extends ConsumerWidget {
         data: (t) => ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (t.logoUrl != null) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image.network(t.logoUrl!, height: 180, width: double.infinity, fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const SizedBox.shrink()),
+              ),
+              const SizedBox(height: 12),
+            ],
             Text(t.name,
                 style: Theme.of(context)
                     .textTheme

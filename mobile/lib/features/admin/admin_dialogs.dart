@@ -1,4 +1,7 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+
+import '../../core/cloudinary_service.dart';
 
 /// Diálogos de formulario reutilizables para el panel de administración.
 
@@ -63,6 +66,7 @@ Future<Map<String, dynamic>?> showEditTournamentDialog(
   DateTime? start,
   DateTime? end,
   String? paymentLink,
+  String? logoUrl,
 }) {
   return showDialog<Map<String, dynamic>>(
     context: context,
@@ -73,6 +77,7 @@ Future<Map<String, dynamic>?> showEditTournamentDialog(
       initialStart: start,
       initialEnd: end,
       initialPaymentLink: paymentLink,
+      initialLogoUrl: logoUrl,
     ),
   );
 }
@@ -85,6 +90,7 @@ class _TournamentDialog extends StatefulWidget {
     this.initialStart,
     this.initialEnd,
     this.initialPaymentLink,
+    this.initialLogoUrl,
   });
   final String title;
   final String okLabel;
@@ -92,6 +98,7 @@ class _TournamentDialog extends StatefulWidget {
   final DateTime? initialStart;
   final DateTime? initialEnd;
   final String? initialPaymentLink;
+  final String? initialLogoUrl;
 
   @override
   State<_TournamentDialog> createState() => _TournamentDialogState();
@@ -103,6 +110,26 @@ class _TournamentDialogState extends State<_TournamentDialog> {
       TextEditingController(text: widget.initialPaymentLink ?? '');
   late DateTime? _start = widget.initialStart;
   late DateTime? _end = widget.initialEnd;
+  late String? _logoUrl = widget.initialLogoUrl;
+  bool _uploadingImg = false;
+
+  Future<void> _pickImage() async {
+    if (!CloudinaryService.ready) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cloudinary no configurado.')));
+      return;
+    }
+    final picked = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+    if (picked == null || picked.files.isEmpty || picked.files.first.bytes == null) return;
+    setState(() => _uploadingImg = true);
+    try {
+      final url = await CloudinaryService.upload(picked.files.first.bytes!, picked.files.first.name);
+      setState(() => _logoUrl = url);
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No se pudo subir la imagen')));
+    } finally {
+      if (mounted) setState(() => _uploadingImg = false);
+    }
+  }
 
   Future<void> _pick(bool start) async {
     final now = DateTime.now();
@@ -121,9 +148,12 @@ class _TournamentDialogState extends State<_TournamentDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(widget.title),
-      content: Column(
+      content: SingleChildScrollView(
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          _imagePicker(),
+          const SizedBox(height: 12),
           TextField(
             controller: _name,
             decoration: const InputDecoration(labelText: 'Nombre del torneo', border: OutlineInputBorder()),
@@ -146,6 +176,7 @@ class _TournamentDialogState extends State<_TournamentDialog> {
             ),
           ),
         ],
+        ),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
@@ -157,9 +188,38 @@ class _TournamentDialogState extends State<_TournamentDialog> {
               'startDate': _start!.toIso8601String(),
               'endDate': _end!.toIso8601String(),
               'paymentLink': _paymentLink.text.trim(),
+              if (_logoUrl != null) 'logoUrl': _logoUrl,
             });
           },
           child: Text(widget.okLabel),
+        ),
+      ],
+    );
+  }
+
+  /// Selector de imagen/flyer del torneo (sube a Cloudinary y muestra vista previa).
+  Widget _imagePicker() {
+    return Column(
+      children: [
+        if (_logoUrl != null)
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.network(_logoUrl!, height: 110, width: double.infinity, fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox(height: 110, child: Icon(Icons.broken_image))),
+          )
+        else
+          Container(
+            height: 90,
+            decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(10)),
+            child: const Center(child: Icon(Icons.image_outlined, size: 36, color: Colors.black38)),
+          ),
+        const SizedBox(height: 6),
+        OutlinedButton.icon(
+          onPressed: _uploadingImg ? null : _pickImage,
+          icon: _uploadingImg
+              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+              : const Icon(Icons.image),
+          label: Text(_logoUrl != null ? 'Cambiar imagen/flyer' : 'Adjuntar imagen/flyer'),
         ),
       ],
     );

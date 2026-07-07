@@ -53,7 +53,14 @@ class TournamentsScreen extends ConsumerWidget {
                 final t = list[i];
                 return Card(
                   child: ListTile(
-                    leading: const CircleAvatar(child: Icon(Icons.emoji_events_outlined)),
+                    leading: t.logoUrl != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(t.logoUrl!, width: 52, height: 52, fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    const CircleAvatar(child: Icon(Icons.emoji_events_outlined))),
+                          )
+                        : const CircleAvatar(child: Icon(Icons.emoji_events_outlined)),
                     title: Text(t.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text('${df.format(t.startDate)} — ${df.format(t.endDate)}\n${t.categories.length} categorías'),
                     isThreeLine: true,

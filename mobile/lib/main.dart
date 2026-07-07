@@ -22,18 +22,30 @@ class CaribbeanFestApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0066CC),
+          seedColor: const Color(0xFF0A4FA0),
           brightness: Brightness.light,
         ),
         useMaterial3: true,
-        // AppBar azul oscuro con texto/iconos blancos → contraste garantizado
-        // para títulos y pestañas en toda la app (sobre el fondo degradado).
+        // AppBar oscuro con texto/iconos blancos; el degradado se pinta en AppScaffold.
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF06203A),
           foregroundColor: Colors.white,
           elevation: 0,
-          titleTextStyle: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+          centerTitle: false,
+          titleTextStyle: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700),
           iconTheme: IconThemeData(color: Colors.white),
+        ),
+        // Tarjetas más redondeadas y con relieve → look moderno.
+        cardTheme: CardThemeData(
+          elevation: 3,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          clipBehavior: Clip.antiAlias,
+          margin: const EdgeInsets.symmetric(vertical: 6),
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
         ),
       ),
       routerConfig: router,
